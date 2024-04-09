@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kizitonwose.calendar.core.CalendarDay
@@ -72,6 +73,7 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
     override val titleRes: Int = R.string.example_5_title
 
     private var selectedDate: LocalDate? = null
+    private val today = LocalDate.now()
 
     private val flightsAdapter = Example5FlightsAdapter()
     private val flights = generateFlights().groupBy { it.time.toLocalDate() }
@@ -93,7 +95,11 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
         val currentMonth = YearMonth.now()
         val startMonth = currentMonth.minusMonths(200)
         val endMonth = currentMonth.plusMonths(200)
+
+//        pass selectedDate from other screen
+
         configureBinders(daysOfWeek)
+
         binding.exFiveCalendar.setup(startMonth, endMonth, daysOfWeek.first())
         binding.exFiveCalendar.scrollToMonth(currentMonth)
 
@@ -104,7 +110,7 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
                 // Clear selection if we scroll to a new month.
                 selectedDate = null
                 binding.exFiveCalendar.notifyDateChanged(it)
-                updateAdapterForDate(null)
+//                updateAdapterForDate(null)
             }
         }
 
@@ -128,20 +134,25 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
     }
 
     private fun configureBinders(daysOfWeek: List<DayOfWeek>) {
+        val calendarView = binding.exFiveCalendar
+
         class DayViewContainer(view: View) : ViewContainer(view) {
             lateinit var day: CalendarDay // Will be set when this container is bound.
-            val binding = Example5CalendarDayBinding.bind(view)
+            val calendarDayBinding = Example5CalendarDayBinding.bind(view)
+            val textView = Example5CalendarDayBinding.bind(view).exFiveDayText
 
             init {
+
                 view.setOnClickListener {
                     if (day.position == DayPosition.MonthDate) {
-                        if (selectedDate != day.date) {
-                            val oldDate = selectedDate
-                            selectedDate = day.date
-                            val binding = this@Example5Fragment.binding
-                            binding.exFiveCalendar.notifyDateChanged(day.date)
-                            oldDate?.let { binding.exFiveCalendar.notifyDateChanged(it) }
-                            updateAdapterForDate(day.date)
+                        if (this@Example5Fragment.selectedDate == day.date) {
+                            calendarView.notifyDayChanged(day)
+                        } else {
+                            val oldDate = this@Example5Fragment.selectedDate
+                            this@Example5Fragment.selectedDate = day.date
+                            calendarView.notifyDateChanged(day.date)
+                            oldDate?.let { calendarView.notifyDateChanged(oldDate) }
+//                    updateAdapterForDate(day.date)
                         }
                     }
                 }
@@ -151,27 +162,34 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: CalendarDay) {
                 container.day = data
-                val context = container.binding.root.context
-                val textView = container.binding.exFiveDayText
-                val layout = container.binding.exFiveDayLayout
-                textView.text = data.date.dayOfMonth.toString()
 
-                val flightTopView = container.binding.exFiveDayFlightTop
-                val flightBottomView = container.binding.exFiveDayFlightBottom
-                flightTopView.background = null
-                flightBottomView.background = null
+                val context = container.textView.context
+                val textView = container.textView
+                textView.text = data.date.dayOfMonth.toString()
+                val layout = container.calendarDayBinding.exFiveDayLayout
+
+                val flightTopView = container.calendarDayBinding.exFiveDayFlightTop
+                flightTopView.setBackgroundResource(R.drawable.example_3_today_bg)
+
+                selectedDate?.let {
+                    flightTopView.isVisible = data.date.isAfter(it)
+                }
 
                 if (data.position == DayPosition.MonthDate) {
-                    textView.setTextColorRes(R.color.primary_purpul)
-                    layout.setBackgroundResource(if (selectedDate == data.date) R.drawable.example_3_selected_bg else 0)
+                    when (data.date) {
+                        this@Example5Fragment.selectedDate -> {
+                            textView.setTextColorRes(R.color.white)
+                            layout.setBackgroundResource(R.drawable.selected_bg)
+                        }
 
-                    val flights = flights[data.date]
-                    if (flights != null) {
-                        if (flights.count() == 1) {
-                            flightBottomView.setBackgroundColor(context.getColorCompat(flights[0].color))
-                        } else {
-                            flightTopView.setBackgroundColor(context.getColorCompat(flights[0].color))
-                            flightBottomView.setBackgroundColor(context.getColorCompat(flights[1].color))
+                        today -> {
+                            textView.setTextColorRes(R.color.primary_purpul)
+                            layout.background = null
+                        }
+
+                        else -> {
+                            textView.setTextColorRes(R.color.color_535353)
+                            layout.background = null
                         }
                     }
                 } else {
@@ -195,9 +213,9 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
                         container.legendLayout.tag = data.yearMonth
                         container.legendLayout.children.map { it as TextView }
                             .forEachIndexed { index, tv ->
-                                tv.text = daysOfWeek[index].displayText(uppercase = true)
+                                tv.text = daysOfWeek[index].displayText(uppercase = false)
                                 tv.setTextColorRes(R.color.example_1_selection_color)
-                                tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+                                tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
                                 tv.typeface = typeFace
                             }
                     }
