@@ -162,8 +162,8 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
                 flightBottomView.background = null
 
                 if (data.position == DayPosition.MonthDate) {
-                    textView.setTextColorRes(R.color.example_5_text_grey)
-                    layout.setBackgroundResource(if (selectedDate == data.date) R.drawable.example_5_selected_bg else 0)
+                    textView.setTextColorRes(R.color.primary_purpul)
+                    layout.setBackgroundResource(if (selectedDate == data.date) R.drawable.example_3_selected_bg else 0)
 
                     val flights = flights[data.date]
                     if (flights != null) {
@@ -175,7 +175,7 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
                         }
                     }
                 } else {
-                    textView.setTextColorRes(R.color.example_5_text_grey_light)
+                    textView.setTextColorRes(R.color.primary_purpul_50)
                     layout.background = null
                 }
             }
@@ -196,7 +196,7 @@ class Example5Fragment : BaseFragment(R.layout.example_5_fragment), HasToolbar {
                         container.legendLayout.children.map { it as TextView }
                             .forEachIndexed { index, tv ->
                                 tv.text = daysOfWeek[index].displayText(uppercase = true)
-                                tv.setTextColorRes(R.color.white)
+                                tv.setTextColorRes(R.color.example_1_selection_color)
                                 tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
                                 tv.typeface = typeFace
                             }

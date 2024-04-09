@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/example_5_page_bg_color"
+    android:background="@color/white"
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical"
@@ -14,7 +14,7 @@
         android:id="@+id/exFiveAppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/example_5_toolbar_color"
+        android:background="@color/example_3_toolbar_color"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -80,6 +80,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/exFiveRv"
             android:layout_width="match_parent"
+            android:background="@color/teal_700"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false" />
     </LinearLayout>
